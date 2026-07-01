@@ -1,0 +1,24 @@
+# Send all requests through index.php, except requests for real files/folders
+# (e.g. /dist assets, /uploads) which are served directly for speed.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # If the request maps to an existing file or directory, serve it directly.
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Otherwise route everything to the front controller.
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Do not allow the directory listing that triggers a 403 on this domain.
+Options -Indexes
+
+# Block direct web access to sensitive files.
+<FilesMatch "^(config\.php|composer\.(json|lock)|package(-lock)?\.json|webpack\.mix\.js|\.npmrc|\.gitignore|README\.md|LICENSE|create-tables\.sql)$">
+    Require all denied
+</FilesMatch>
+
+# Block direct access to source, config and language folders.
+RedirectMatch 403 ^/(src|config|lang)(/.*)?$
